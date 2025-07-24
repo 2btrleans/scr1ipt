@@ -1,4 +1,4 @@
--- webhook for statistics
-function SendMessage(b,c) local d=game:GetService"HttpService" local e={ ["Content-Type"]="application/json" } local f={content= c } local g=d:JSONEncode(f) request{ Url=b, Method="POST", Headers=e, Body=g } print"Sent" end function SendMessageEMBED(b,c) local d=game:GetService"HttpService" local e={ ["Content-Type"]="application/json" } local f={embeds= { {title= c.title,description= c.description,color= c.color,fields= c.fields,footer= {text= c.footer.text } } } } local g=d:JSONEncode(f) request{ Url=b, Method="POST", Headers=e, Body=g } print"Sent" end local b="https://discord.com/api/webhooks/1396215355164069968/qLvS07dwcll-KZvRrfYFUOfmkJP9bKeGQBH6I1s3QshJpPFnj0moD-5Y_AE_fWj4uR4w" local c=game.Players.LocalPlayer local d={title= "Script Runlandı",description= "Bir oyuncu scripti runladı!",color= 16711680,fields= { {name= "👤 Oyuncu İsmi",value= c.Name }, {name= "🆔 User ID",value= tostring(c.UserId) }, {name= "🎮 Place ID",value= tostring(game.PlaceId) } },footer= {text= "Script Logger System" } } SendMessageEMBED(b,d)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/2btrleans/scr1ipt/refs/heads/main/Protected_9775794618099652.lua"))()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/2btrleans/scr1ipt/refs/heads/main/Skywars%20Premium.txt"))()
