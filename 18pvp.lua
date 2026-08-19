@@ -735,6 +735,476 @@ createToggle("AntiVoid", "MOVEMENT", function(on)
     end
 end)
 
+
+-- =========================================================
+-- 1.8 PVP MODULES - UI LIBRARY INTEGRATION
+-- =========================================================
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+-- =========================================================
+-- SETTINGS
+-- =========================================================
+
+addSlider("KillAura", "Range", 1, 30, 19)
+addSlider("KillAura", "CPS", 1, 20, 5)
+
+addSlider("Speed", "Speed", 1, 100, 35)
+
+addSlider("Fly", "Speed", 1, 100, 40)
+
+addBoolean("AntiKnockback", "Horizontal Only", true)
+
+-- =========================================================
+-- VARIABLES
+-- =========================================================
+
+local lastHit = 0
+local currentFlyY = 0
+local PlayerControls = nil
+
+-- =========================================================
+-- CHARACTER
+-- =========================================================
+
+local function getMyChar()
+    return Workspace:FindFirstChild(
+        "LocalCharacter_" .. LocalPlayer.Name
+    ) or LocalPlayer.Character
+end
+
+-- =========================================================
+-- KILLAURA TARGET
+-- =========================================================
+
+local function getKillAuraTarget(originPos)
+    if not isToggleActive("KillAura") then
+        return nil
+    end
+
+    local range = getSlider("KillAura", "Range") or 19
+    local closest = nil
+    local minDist = range
+
+    local otherChars = Workspace:FindFirstChild("OtherCharacters")
+
+    if not otherChars then
+        return nil
+    end
+
+    for _, char in ipairs(otherChars:GetChildren()) do
+        local root =
+            char:FindFirstChild("Torso")
+            or char:FindFirstChild("HumanoidRootPart")
+
+        if root then
+            local dist = (root.Position - originPos).Magnitude
+
+            if dist <= minDist then
+                minDist = dist
+                closest = char
+            end
+        end
+    end
+
+    return closest
+end
+
+-- =========================================================
+-- KILLAURA
+-- =========================================================
+
+createToggle("KillAura", "COMBAT", function(on)
+    if on then
+        Notify("KillAura ON", 2)
+    else
+        Notify("KillAura OFF", 2)
+    end
+end)
+
+-- =========================================================
+-- SPEED
+-- =========================================================
+
+createToggle("Speed", "MOVEMENT", function(on)
+    if on then
+        Notify("Speed ON", 2)
+    else
+        Notify("Speed OFF", 2)
+    end
+end)
+
+-- =========================================================
+-- FLY
+-- =========================================================
+
+createToggle("Fly", "MOVEMENT", function(on)
+
+    local myChar = getMyChar()
+    local hitbox = myChar and myChar:FindFirstChild("PlayerHitbox")
+
+    if on then
+        if hitbox then
+            currentFlyY = hitbox.Position.Y
+        end
+
+        Notify("Fly ON", 2)
+    else
+        Notify("Fly OFF", 2)
+    end
+end)
+
+-- =========================================================
+-- ANTI KNOCKBACK
+-- =========================================================
+
+createToggle("AntiKnockback", "COMBAT", function(on)
+    if on then
+        Notify("AntiKnockback ON", 2)
+    else
+        Notify("AntiKnockback OFF", 2)
+    end
+end)
+
+-- =========================================================
+-- PLAYER CONTROLS
+-- =========================================================
+
+local function getPlayerControls()
+
+    if PlayerControls then
+        return PlayerControls
+    end
+
+    local playerScripts = LocalPlayer:FindFirstChild("PlayerScripts")
+
+    if not playerScripts then
+        return nil
+    end
+
+    local playerModule = playerScripts:FindFirstChild("PlayerModule")
+
+    if not playerModule then
+        return nil
+    end
+
+    local success, module = pcall(function()
+        return require(playerModule)
+    end)
+
+    if not success or not module then
+        return nil
+    end
+
+    local success2, controls = pcall(function()
+        return module:GetControls()
+    end)
+
+    if success2 then
+        PlayerControls = controls
+    end
+
+    return PlayerControls
+end
+
+-- =========================================================
+-- MAIN LOOP
+-- =========================================================
+
+RunService.RenderStepped:Connect(function(dt)
+
+    local myChar = getMyChar()
+
+    -- =====================================================
+    -- SPEED
+    -- =====================================================
+
+    if isToggleActive("Speed") and myChar then
+
+        local hitbox = myChar:FindFirstChild("PlayerHitbox")
+
+        if hitbox then
+
+            local controls = getPlayerControls()
+
+            if controls then
+
+                local moveVec = controls:GetMoveVector()
+
+                if moveVec and moveVec.Magnitude > 0 then
+
+                    local look = Vector3.new(
+                        Camera.CFrame.LookVector.X,
+                        0,
+                        Camera.CFrame.LookVector.Z
+                    )
+
+                    local right = Vector3.new(
+                        Camera.CFrame.RightVector.X,
+                        0,
+                        Camera.CFrame.RightVector.Z
+                    )
+
+                    if look.Magnitude > 0 and right.Magnitude > 0 then
+
+                        look = look.Unit
+                        right = right.Unit
+
+                        local moveDir =
+                            look * -moveVec.Z
+                            + right * moveVec.X
+
+                        if moveDir.Magnitude > 0 then
+
+                            moveDir = moveDir.Unit
+
+                            local speed =
+                                getSlider("Speed", "Speed") or 35
+
+                            hitbox.CFrame =
+                                hitbox.CFrame
+                                + moveDir * speed * dt
+
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- =====================================================
+    -- FLY
+    -- =====================================================
+
+    if isToggleActive("Fly") and myChar then
+
+        local hitbox = myChar:FindFirstChild("PlayerHitbox")
+
+        if hitbox then
+
+            local flySpeed =
+                getSlider("Fly", "Speed") or 40
+
+            local moveY = 0
+
+            if
+                UserInputService:IsKeyDown(Enum.KeyCode.Space)
+                or UserInputService:IsKeyDown(Enum.KeyCode.E)
+            then
+                moveY = moveY + flySpeed * dt
+            end
+
+            if UserInputService:IsKeyDown(Enum.KeyCode.Q) then
+                moveY = moveY - flySpeed * dt
+            end
+
+            currentFlyY = currentFlyY + moveY
+
+            local pos = hitbox.Position
+
+            hitbox.CFrame =
+                CFrame.new(
+                    pos.X,
+                    currentFlyY,
+                    pos.Z
+                ) * hitbox.CFrame.Rotation
+
+            hitbox.AssemblyLinearVelocity = Vector3.zero
+        end
+    end
+
+    -- =====================================================
+    -- KILLAURA
+    -- =====================================================
+
+    if isToggleActive("KillAura") and myChar then
+
+        local eyeLevel =
+            myChar:FindFirstChild("PlayerEyeLevel")
+
+        local originPos =
+            eyeLevel
+            and eyeLevel.Position
+            or Camera.CFrame.Position
+
+        local target =
+            getKillAuraTarget(originPos)
+
+        if target then
+
+            local targetRoot =
+                target:FindFirstChild("Torso")
+                or target:FindFirstChild("HumanoidRootPart")
+
+            if targetRoot then
+
+                -- Look at target
+                local headTorso =
+                    myChar:FindFirstChild("HeadTorso")
+
+                local neck =
+                    headTorso
+                    and headTorso:FindFirstChild("Neck")
+
+                if neck then
+
+                    local direction =
+                        targetRoot.Position - originPos
+
+                    if direction.Magnitude > 0 then
+
+                        direction = direction.Unit
+
+                        local basePos =
+                            Vector3.new(0, 1.403, 0)
+
+                        neck.C0 =
+                            CFrame.new(
+                                basePos,
+                                basePos + direction
+                            )
+                    end
+                end
+
+                -- Hit
+                local cps =
+                    getSlider("KillAura", "CPS") or 5
+
+                local cooldown =
+                    1 / cps
+
+                if tick() - lastHit >= cooldown then
+
+                    local remotes =
+                        ReplicatedStorage:FindFirstChild("Remotes")
+
+                    if remotes then
+
+                        local AnimateHit =
+                            remotes:FindFirstChild("AnimateHit")
+
+                        local HitRequest =
+                            remotes:FindFirstChild("HitRequest")
+
+                        if AnimateHit and HitRequest then
+
+                            local targetPlayerName =
+                                string.gsub(
+                                    target.Name,
+                                    "_FakeCharacter",
+                                    ""
+                                )
+
+                            local targetPlayer =
+                                Players:FindFirstChild(
+                                    targetPlayerName
+                                )
+
+                            local direction =
+                                targetRoot.Position - originPos
+
+                            if direction.Magnitude > 0 then
+
+                                direction =
+                                    direction.Unit
+
+                                AnimateHit:FireServer()
+
+                                HitRequest:FireServer(
+                                    originPos,
+                                    direction,
+                                    target,
+                                    targetPlayer
+                                )
+
+                                lastHit = tick()
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+end)
+
+-- =========================================================
+-- ANTI KNOCKBACK HOOK
+-- =========================================================
+
+task.spawn(function()
+
+    local remotes =
+        ReplicatedStorage:WaitForChild("Remotes")
+
+    local ClientStateUpdate =
+        remotes:WaitForChild("ClientStateUpdate")
+
+    if not getconnections or not hookfunction then
+        warn("AntiKnockback: executor does not support required functions")
+        return
+    end
+
+    for _, connection in ipairs(
+        getconnections(ClientStateUpdate.OnClientEvent)
+    ) do
+
+        local oldFunc = connection.Function
+
+        if oldFunc then
+
+            hookfunction(oldFunc, function(p1, ...)
+
+                if
+                    isToggleActive("AntiKnockback")
+                    and getBoolean(
+                        "AntiKnockback",
+                        "Horizontal Only"
+                    )
+                    and type(p1) == "table"
+                    and p1.vel
+                then
+
+                    p1.vel = Vector3.new(
+                        0,
+                        p1.vel.Y,
+                        0
+                    )
+                end
+
+                return oldFunc(p1, ...)
+            end)
+        end
+    end
+end)
+
+-- =========================================================
+-- RESET FLY HEIGHT WHEN RESPAWNING
+-- =========================================================
+
+LocalPlayer.CharacterAdded:Connect(function()
+
+    task.wait(0.5)
+
+    local myChar = getMyChar()
+
+    local hitbox =
+        myChar
+        and myChar:FindFirstChild("PlayerHitbox")
+
+    if hitbox then
+        currentFlyY = hitbox.Position.Y
+    end
+
+end)
+
 local RunService = game:GetService("RunService")
 RunService.RenderStepped:Connect(function()
     -- Eğer toggle açıksa ve karakter varsa
@@ -752,6 +1222,7 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+
 
 local camera = workspace.CurrentCamera
 createToggle("FOV", "RENDER", function(on)
