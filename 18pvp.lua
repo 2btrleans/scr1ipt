@@ -675,14 +675,6 @@ createToggle("LOGO", "HUD", function(on)
     hudLogo.Visible = on
 end)
 
-game:GetService("RunService").RenderStepped:Connect(function()
-    -- Fonksiyonlar artık tanımlı olduğu için nil hatası vermeyecek
-    if isToggleActive("LOGO") then
-        local transValue = getSlider("LOGO", "Transparency") or 0
-        hudLogo.ImageTransparency = transValue / 100
-    end
-end)
-
 
 addColor("Watermark", "Color", Color3.fromRGB(255,0,0))
 
