@@ -14,7 +14,7 @@ imageLabel.Parent = screenGui
 imageLabel.Size = UDim2.new(0, 300, 0, 300)
 imageLabel.Position = UDim2.new(0.5, -150, -0.3, 0) -- yukarıdan başlasın
 imageLabel.BackgroundTransparency = 0
-imageLabel.Image = "rbxassetid://140222022471910"
+imageLabel.Image = "rbxassetid://134803730453170"
 imageLabel.ImageTransparency = 0
 
 -- Aşağı inme animasyonu
