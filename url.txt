@@ -1,1 +1,1 @@
-https://contains-ingredients-grove-recognition.trycloudflare.com
+https://api.trycloudflare.com
