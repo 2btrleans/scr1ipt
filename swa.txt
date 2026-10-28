@@ -7,6 +7,7 @@ runned = true
 local UserConfig = {
     Farm = {
         Enabled = false, -- false = everything paused ("Pause all" in the window); each feature has its own switch
+        FarmEquippedOnly = true,
         BabyMode = false,
         AutoNeeds = {
             Enabled = false,
@@ -382,6 +383,7 @@ __moduleSources["Core/Config"] = function(...)
         Farm = {
             Enabled = true, -- false = everything paused ("Pause all"); every feature also has its own switch
             BabyMode = false,
+            FarmEquippedOnly = false, -- <-- BURAYI EKLE
             FastTravel = true,
             Tasks = {
                 pet_me = true,
@@ -17064,6 +17066,20 @@ __moduleSources["Game/TaskManager"] = function(...)
         -- v2.1.12 (user: "each switch does what its name says"): "Buy eggs" works on its own; equipping / swapping pets
         -- is only done by "Keep a growing pet equipped"
         local keepPet = self._farmConfig.KeepPetEquipped == true
+
+        local farmEquippedOnly = self._farmConfig.FarmEquippedOnly == true
+
+        if farmEquippedOnly and self._gameData then
+            local current = self._gameData:firstEquippedPet()
+            if current then
+                -- Kullanıcının eline aldığı peti hafızaya al
+                self._savedUserPet = current
+            elseif self._savedUserPet and not self:_isBlocked("equip_pet") and not petHold then
+                -- Pet teleport veya minigame yüzünden elden düşerse SADECE bu peti geri tak
+                self:_start("equip_pet", "kullanılan peti geri kuşan", Tasks.equipPet, { petUnique = self._savedUserPet })
+                return
+            end
+        else
         -- v3.0.5 Repeat buy & hatch (user: "buy the egg, when it hatches buy again"): Buy eggs keeps one Farm.EggToBuy
         -- egg in the backpack and equips it until it hatches (also when Pet Farm is off)
         local hatchEgg = self._farmConfig.BuyEgg == true and not GameConstants.focusOf(self._farmConfig)
