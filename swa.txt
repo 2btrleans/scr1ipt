@@ -1,9 +1,4 @@
--- Shxdrag hub | Adopt Me Farm (WindUI Edition) | settings: the window
 
-local runned = false
-
-if (runned == false) then
-runned = true
 local UserConfig = {
     Farm = {
         Enabled = false, -- false = everything paused ("Pause all" in the window); each feature has its own switch
@@ -19775,4 +19770,3 @@ RunService.Heartbeat:Connect(function()
     platform.CFrame = CFrame.new(root.Position.X, platformY, root.Position.Z)
     platform.CanCollide = true
 end)
-end
