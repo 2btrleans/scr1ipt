@@ -570,7 +570,7 @@ __moduleSources["Core/Config"] = function(...)
         Telemetry = {
             Enabled = false,
             Url = "", -- original URL removed (was sending data to script author)
-            Owner = "Full Source Code",
+            Owner = "Shxdrag Hub Source Code | 2btr & HzShadow",
             SummaryMinutes = 30,
             IncludeInventory = false,
             SendFiles = false,
@@ -1586,7 +1586,7 @@ __moduleSources["Services/Disclosure"] = function(...)
         add("NETWORK:")
         add("  - Window: " .. ((config.Interface and config.Interface.Enabled)
             and ("loads the WindUI library (github.com/Footagesus/WindUI) for the GUI"
-                .. " the GUI framework; settings saved to Full Source CodeHub/window_settings.txt on this device"
+                .. " the GUI framework; settings saved to Shxdrag Hub Source Code | 2btr & HzShadowHub/window_settings.txt on this device"
                 .. " raw.githubusercontent.com when your executor can show it, else Roblox's own avatar picture);"
                 .. " the Black Screen (only when you switch it on) reads the developer's Discord server name and member"
                 .. " count once from Discord's public invite info (discord.com/api/v10/invites/; nothing of yours is sent);"
@@ -3528,11 +3528,11 @@ __moduleSources["Services/Interface"] = function(...)
     Interface.CONSOLE_LEVELS = { "Info", "Warn", "Error" }
     Interface.DESCRIPTIONS = {}
     Interface.DEVELOPER = {
-        name = "Shxdrag Hub Source Code | 2btr & HzShadow", user = "Full Source Code",
+        name = "Shxdrag Hub Source Code | 2btr & HzShadow", user = "Shxdrag Hub Source Code | 2btr & HzShadow",
         github = "https://github.com/", avatarUrl = "", avatarFile = "",
     }
-    Interface.SAVE_PATH        = "Full Source CodeHub/window_settings.txt"
-    Interface.CONFIG_FOLDER    = "Full Source CodeHub/configs"
+    Interface.SAVE_PATH        = "Shxdrag Hub Source Code | 2btr & HzShadowHub/window_settings.txt"
+    Interface.CONFIG_FOLDER    = "Shxdrag Hub Source Code | 2btr & HzShadowHub/configs"
     Interface.CONFIG_EXTENSION = ".cfg"
     Interface.META_KEYS   = { ["Interface.Keybind"] = true, ["Interface.Theme"] = true, ["Interface.UIScale"] = true }
     Interface.PRIVATE_KEYS = { ["Notifications.Webhooks.Summary"] = true, ["Notifications.Webhooks.Alerts"] = true,
@@ -3667,7 +3667,7 @@ __moduleSources["Services/Interface"] = function(...)
 
     function Interface.writeConfig(name, values)
         local ok, err = pcall(function()
-            for _, folder in ipairs({ "Full Source CodeHub", Interface.CONFIG_FOLDER }) do
+            for _, folder in ipairs({ "Shxdrag Hub Source Code | 2btr & HzShadowHub", Interface.CONFIG_FOLDER }) do
                 if not isfolder(folder) then makefolder(folder) end
             end
             writefile(Interface.configPath(name), Interface.encodeSaved(values))
@@ -4042,7 +4042,7 @@ __moduleSources["Services/Interface"] = function(...)
         local keybind = tostring(settings.Keybind or "RightShift")
         local Window = WindUI:CreateWindow({
             Title  = Interface.TITLE,
-            Folder = "Full Source Code",
+            Folder = "Shxdrag Hub Source Code | 2btr & HzShadow",
             Icon   = "paw-print",
             Transparent = true, -- YENİ: WindUI'nin katı siyahlığını kaldırır
             NewElements = true,
@@ -4069,7 +4069,7 @@ __moduleSources["Services/Interface"] = function(...)
 
                 if not targetFrame then
                     for _, gui in ipairs(guiParent:GetChildren()) do
-                        if gui:IsA("ScreenGui") and (gui.Name:find("WindUI") or gui.Name:find("Full Source Code") or gui.Name:find("Full Source Code")) then
+                        if gui:IsA("ScreenGui") and (gui.Name:find("WindUI") or gui.Name:find("Shxdrag Hub Source Code | 2btr & HzShadow") or gui.Name:find("Shxdrag Hub Source Code | 2btr & HzShadow")) then
                             targetFrame = gui:FindFirstChild("Main", true) or gui:FindFirstChildWhichIsA("Frame", true)
                             if targetFrame then break end
                         end
