@@ -1,4 +1,4 @@
--- Full Source Code hub | Adopt Me Farm (WindUI Edition) | settings: the window
+-- Shxdrag Hub Source Code | 2btr & HzShadow | Adopt Me Farm (WindUI Edition) | settings: the window
 local UserConfig = {
     Farm = {
         Enabled = false, -- false = everything paused ("Pause all" in the window); each feature has its own switch
@@ -367,7 +367,7 @@ __moduleSources["Core/Config"] = function(...)
     local Config = {}
     Config.Defaults = {
         General = {
-            ScriptName = "Full Source Code hub",
+            ScriptName = "Shxdrag Hub Source Code | 2btr & HzShadow",
             TickSeconds = 0.5,
         },
         Farm = {
@@ -1361,7 +1361,7 @@ __moduleSources["Services/Disclosure"] = function(...)
     local import = ...
     local Config = import("Core/Config")
     local Disclosure = {}
-    Disclosure.VERSION = "3.0.70 (Full Source Code hub)"
+    Disclosure.VERSION = "3.0.70 (Shxdrag Hub Source Code | 2btr & HzShadow)"
     Disclosure.WEBHOOK_FIELDS = {
         ["Player"] = "your Roblox username (only if Notifications.IncludeUsername = true)",
         ["Session time"] = "how long the script has been running",
@@ -2836,7 +2836,7 @@ __moduleSources["Services/Lang"] = function(...)
     add("Ghost Gallery round", "Hayalet Galerisi turu", "Ronda de la galería", "Rodada da galeria")
     add("Task resting", "Görev dinleniyor", "Tarea en pausa", "Tarefa em pausa")
     add("Stuck: going home", "Takıldı: eve gidiyor", "Atascado: a casa", "Travado: indo pra casa")
-    add("Full Source Code hub — Adopt Me Farm (WindUI Edition).", "Full Source Code hub — Türkçe desteği.", "Full Source Code hub — soporte en Español.", "Full Source Code hub — suporte em Português.")
+    add("Shxdrag Hub Source Code | 2btr & HzShadow — Adopt Me Farm (WindUI Edition).", "Shxdrag Hub Source Code | 2btr & HzShadow — Türkçe desteği.", "Shxdrag Hub Source Code | 2btr & HzShadow — soporte en Español.", "Shxdrag Hub Source Code | 2btr & HzShadow — suporte em Português.")
     add("Thank you for using it!", "Kullandığın için teşekkürler!", "¡Gracias por usarlo!", "Obrigado por usar!")
     add("Send each coin only on the network written next to it. Tokens sent on another network are lost.", "Her coini sadece yanında yazan ağdan gönder. Başka ağdan gönderilen tokenler kaybolur.", "Envía cada moneda solo por la red indicada. Los tokens en otra red se pierden.", "Envie cada moeda só pela rede indicada. Tokens em outra rede se perdem.")
     add("supported", "destekleniyor", "compatible", "compatível")
@@ -3375,7 +3375,7 @@ __moduleSources["Services/Interface"] = function(...)
     local Interface = {}
 
     -- ── Branding ──────────────────────────────────────────────────────────────
-    Interface.TITLE         = "Full Source Code hub"
+    Interface.TITLE         = "Shxdrag Hub Source Code | 2btr & HzShadow"
     Interface.EDITION       = "Adopt Me"
     Interface.LIBRARY_URL   = "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"
     Interface.DISCORD_INVITE = ""
@@ -3483,7 +3483,7 @@ __moduleSources["Services/Interface"] = function(...)
     Interface.DASHBOARD_COLORS = {}
     Interface.DASHBOARD_KNOWN = {}
     Interface.SUPPORTED_EXECUTORS = {}
-    Interface.CHANGELOG = { "Full Source Code hub - Adopt Me Farm (WindUI edition)" }
+    Interface.CHANGELOG = { "Shxdrag Hub Source Code | 2btr & HzShadow - Adopt Me Farm (WindUI edition)" }
     Interface.NEED_NAMES = {
         { "pet_me", "Pet me" }, { "hungry", "Hungry" }, { "thirsty", "Thirsty" },
         { "play", "Play" }, { "sleepy", "Sleepy" }, { "dirty", "Dirty" },
@@ -3528,7 +3528,7 @@ __moduleSources["Services/Interface"] = function(...)
     Interface.CONSOLE_LEVELS = { "Info", "Warn", "Error" }
     Interface.DESCRIPTIONS = {}
     Interface.DEVELOPER = {
-        name = "Full Source Code hub", user = "Full Source Code",
+        name = "Shxdrag Hub Source Code | 2btr & HzShadow", user = "Full Source Code",
         github = "https://github.com/", avatarUrl = "", avatarFile = "",
     }
     Interface.SAVE_PATH        = "Full Source CodeHub/window_settings.txt"
@@ -4671,8 +4671,8 @@ __moduleSources["Services/Interface"] = function(...)
             Icon  = "solar:info-square-bold",
         })
 
-        local infoSection = infoTab:Section({ Title = "About Full Source Code Hub" })
-        infoTab:Paragraph({ Title = "Full Source Code hub — Adopt Me Farm" })
+        local infoSection = infoTab:Section({ Title = "About Shxdrag Hub Source Code | 2btr & HzShadow" })
+        infoTab:Paragraph({ Title = "Shxdrag Hub Source Code | 2btr & HzShadow — Adopt Me Farm" })
         infoTab:Paragraph({ Title = "WindUI by Footagesus" })
         uiButton(infoTab, "Print Transparency Report",
             "Prints what the script does to the console (F9)",
@@ -18002,7 +18002,7 @@ __moduleSources["Game/TaskManager"] = function(...)
             end
             task.wait(8)
             pcall(function()
-                game:GetService("Players").LocalPlayer:Kick("Full Source Code hub: stuck in an unloaded place (void). Rejoining"
+                game:GetService("Players").LocalPlayer:Kick("Shxdrag Hub Source Code | 2btr & HzShadow: stuck in an unloaded place (void). Rejoining"
                     .. " gives a fresh game.")
             end)
         end)
@@ -18272,7 +18272,7 @@ __moduleSources["main"] = function(...)
             pcall(function()
                 executor = type(identifyexecutor) == "function" and tostring((identifyexecutor())) or "?"
             end)
-            return string.format("Full Source Code hub %s | executor %s | %s", Disclosure.VERSION, executor, os.date("!%Y-%m-%d %H:%M UTC"))
+            return string.format("Shxdrag Hub Source Code | 2btr & HzShadow %s | executor %s | %s", Disclosure.VERSION, executor, os.date("!%Y-%m-%d %H:%M UTC"))
         end
         for _, warning in ipairs(configWarnings) do
             logger:warn("Config", warning)
@@ -19325,7 +19325,7 @@ __moduleSources["main"] = function(...)
                     else
                         text = "starting"
                     end
-                    label.Text = Lang.tr("Full Source Code hub") .. "  •  " .. Lang.tr(text) .. (step and ("\n" .. Lang.tr(step)) or "")
+                    label.Text = Lang.tr("Shxdrag Hub Source Code | 2btr & HzShadow") .. "  •  " .. Lang.tr(text) .. (step and ("\n" .. Lang.tr(step)) or "")
                 end)
             end)
             maid:Give(task.spawn(function()
