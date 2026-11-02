@@ -3771,11 +3771,6 @@ __moduleSources["Services/Interface"] = function(...)
             Interface.current = nil
         end
 
-        if type(config.Farm.AutoNeon) ~= "table" then config.Farm.AutoNeon = {} end
-        if type(config.Farm.AutoNeon.SelectedPet) ~= "string" then
-            config.Farm.AutoNeon.SelectedPet = "auto"
-        end
-
         local config   = api.Config
         local settings = config.Interface or options.settings or {}
         local farm     = config.Farm
@@ -4154,37 +4149,16 @@ __moduleSources["Services/Interface"] = function(...)
         farmTab:Space()
 
 
-
+        -- Potions & Neon
+-- Potions & Neon
         local growthSection = farmTab:Section({ Title = "Potions & Neon" })
-        bindToggle(farmTab, "Use Potions",
-            "Uses every farming potion on the growing pet",
-            { "Farm", "AutoPotions", "Enabled" })
-        bindToggle(farmTab, "Auto Neon Pets",
-            "4 full grown of same kind -> 1 neon",
-            { "Farm", "AutoNeon", "Enabled" })
+        bindToggle(farmTab, "Use Potions", "", { "Farm", "AutoPotions", "Enabled" })
+        bindToggle(farmTab, "Auto Neon Pets", "Otomatik neon yap", { "Farm", "AutoNeon", "Enabled" })
 
-        -- === SEÇİM KUTUSU (DROPDOWN) ===
-        local neonChoices = (type(api.GetNeonCandidates) == "function" and api.GetNeonCandidates()) or { { "none", "Bulunamadı (4x Yok)" } }
-        bindPickSimple(farmTab, "Neon Yapılacak Pet",
-            "4x Full Grown olan petler listelenir",
-            { "Farm", "AutoNeon", "SelectedPet" },
-            neonChoices, false)
-
-        -- === ŞİMDİ NEON YAP BUTONU ===
-        uiButton(farmTab, "Seçili Peti Şimdi Neon Yap",
-            "Beklemeden hemen 4 peti birleştirir",
-            function()
-                local choice = read({ "Farm", "AutoNeon", "SelectedPet" }) or "auto"
-                if type(api.DoNeon) == "function" then
-                    return api.DoNeon(choice)
-                else
-                    return false, "DoNeon api'de bulunamadı!"
-                end
-            end)
-
-        bindToggle(farmTab, "Auto Mega Neon Pets",
-            "4 neons of same kind -> 1 mega neon",
-            { "Farm", "AutoNeon", "Mega" })
+        -- Seçim kutusu
+        local neonChoices = type(api.GetNeonCandidates) == "function" and api.GetNeonCandidates() or { { "none", "Bulunamadı" } }
+        bindPickSimple(farmTab, "Neon Yapılacak Pet", "4x Full Grown pet seçin", { "Farm", "AutoNeon", "SelectedPet" }, neonChoices, false)
+        bindToggle(farmTab, "Auto Mega Neon Pets", "", { "Farm", "AutoNeon", "Mega" })
 
         -- ── EVENT tab ──────────────────────────────────────────────────────────
         local eventTab = Window:Tab({
@@ -19565,69 +19539,29 @@ __moduleSources["main"] = function(...)
             return true, "Test message sent: check your Discord channel"
         end
 
--- YENİ: Neon Adaylarını Listeleme
         function api.GetNeonCandidates()
             local list = {}
             if uiGameData then
+                -- false parametresi sadece normal (neon olmayan) full grown petleri gruplar
                 local groups = uiGameData:neonFusionGroups({}, false)
                 for kind, pets in pairs(groups) do
                     if #pets >= 4 then
-                        local displayName = tostring(kind):gsub("_", " "):gsub("^%l", string.upper)
-                        table.insert(list, { kind, displayName .. " (" .. #pets .. "x Full Grown)" })
+                        -- Görüntülenecek isim ve ID ikilisi
+                        table.insert(list, { kind, tostring(kind):gsub("_", " "):gsub("^%l", string.upper) .. " (" .. #pets .. "x Full Grown)" })
                     end
                 end
             end
+            
             table.sort(list, function(a, b) return a[1] < b[1] end)
+            
+            -- Eğer en az 4 full grown pet bulunamadıysa:
             if #list == 0 then
                 return { { "none", "Bulunamadı (4x Full Grown Yok)" } }
             else
-                table.insert(list, 1, { "auto", "Otomatik (İlk Uygun Olan)" })
+                -- İsteğe bağlı: En çok olanı otomatik seçme seçeneği
+                table.insert(list, 1, { "auto", "Otomatik (En Çok Olan)" })
             end
             return list
-        end
-
-        -- YENİ: Tek Tıkla Neon Yapma Fonksiyonu (Hatasız)
-        function api.DoNeon(wantedKind)
-            if not uiGameData then
-                return false, "Oyun verisi henüz yüklenmedi!"
-            end
-            local groups = uiGameData:neonFusionGroups({}, false)
-            local targetKind, targetUniques
-            
-            wantedKind = wantedKind or (config.Farm.AutoNeon and config.Farm.AutoNeon.SelectedPet)
-            
-            if wantedKind and wantedKind ~= "auto" and wantedKind ~= "none" and wantedKind ~= "" then
-                if groups[wantedKind] and #groups[wantedKind] >= 4 then
-                    targetKind = wantedKind
-                    targetUniques = groups[wantedKind]
-                else
-                    return false, tostring(wantedKind) .. " için 4x Full Grown pet yok!"
-                end
-            else
-                for kind, pets in pairs(groups) do
-                    if #pets >= 4 then
-                        targetKind = kind
-                        targetUniques = pets
-                        break
-                    end
-                end
-            end
-            
-            if not targetKind or not targetUniques or #targetUniques < 4 then
-                return false, "Birleştirecek 4x Full Grown pet bulunamadı!"
-            end
-            
-            local ok, res = pcall(function()
-                return game:GetService("ReplicatedStorage").API["PetAPI/DoNeonFusion"]:InvokeServer({
-                    targetUniques[1], targetUniques[2], targetUniques[3], targetUniques[4]
-                })
-            end)
-            
-            if ok then
-                return true, "Neon yapıldı: " .. tostring(targetKind)
-            else
-                return false, "Hata: " .. tostring(res)
-            end
         end
 
         function api.ApplyPreset(name, focus)
