@@ -19,7 +19,7 @@ local UserConfig = {
         AutoPotions = {
             Enabled = false,
             Skip = {},
-            SelectedPet = "auto", -- YENİ: Seçilen pet veya "auto" / "none"
+            SelectedPet = "none", -- YENİ: Seçilen pet veya "auto" / "none"
         },
         AutoNeon = {
             Enabled = false,
