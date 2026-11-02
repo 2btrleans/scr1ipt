@@ -4158,6 +4158,25 @@ __moduleSources["Services/Interface"] = function(...)
         -- Seçim kutusu
         local neonChoices = type(api.GetNeonCandidates) == "function" and api.GetNeonCandidates() or { { "none", "Bulunamadı" } }
         bindPickSimple(farmTab, "Neon Yapılacak Pet", "4x Full Grown pet seçin", { "Farm", "AutoNeon", "SelectedPet" }, neonChoices, false)
+
+        -- YENİ: Anında Tetikleme Butonu
+        uiButton(farmTab, "Seçili Peti Şimdi Neon Yap", "Beklemeden hemen 4 peti birleştirir", function()
+            local kind, uniques = EventTasks.neonPick(api.State._gameData or api.GameData, api.Config.Farm, false)
+            if not kind or not uniques or #uniques < 4 then
+                return false, "Seçilen petten 4 adet Full Grown bulunamadı!"
+            end
+            
+            local ok, err = pcall(function()
+                game:GetService("ReplicatedStorage").API["PetAPI/DoNeonFusion"]:InvokeServer({ uniques[1], uniques[2], uniques[3], uniques[4] })
+            end)
+            
+            if ok then
+                return true, "Neon yapıldı: " .. tostring(kind)
+            else
+                return false, "Hata: " .. tostring(err)
+            end
+        end)
+
         bindToggle(farmTab, "Auto Mega Neon Pets", "", { "Farm", "AutoNeon", "Mega" })
 
         -- ── EVENT tab ──────────────────────────────────────────────────────────
