@@ -19,6 +19,7 @@ local UserConfig = {
         AutoPotions = {
             Enabled = false,
             Skip = {},
+            SelectedPet = "auto", -- YENİ: Seçilen pet veya "auto" / "none"
         },
         AutoNeon = {
             Enabled = false,
@@ -399,6 +400,8 @@ __moduleSources["Core/Config"] = function(...)
             AutoNeeds = {
                 Enabled = false,
                 Skip = {},
+                SelectedPet = "auto", -- YENİ
+                Exclude = {},
             },
             MultiNeed = {
                 Enabled = true,
@@ -4145,6 +4148,17 @@ __moduleSources["Services/Interface"] = function(...)
         bindPickSimple(farmTab, "Egg to Buy", "", { "Farm", "EggToBuy" }, Interface.EGG_NAMES, false)
         farmTab:Space()
 
+
+        local neonChoices = type(api.GetNeonCandidates) == "function" and api.GetNeonCandidates() or { { "none", "Bulunamadı (4x Full Grown Yok)" } }
+        bindPickSimple(farmTab, "Neon Yapılacak Pet",
+            "Sadece 4x Full Grown olan petler listelenir",
+            { "Farm", "AutoNeon", "SelectedPet" },
+            neonChoices, false)
+
+        bindToggle(farmTab, "Auto Mega Neon Pets",
+            "4 neons of same kind → 1 mega neon",
+            { "Farm", "AutoNeon", "Mega" })
+
         -- Potions & Neon
         local growthSection = farmTab:Section({ Title = "Potions & Neon" })
         bindToggle(farmTab, "Use Potions",
@@ -4162,6 +4176,9 @@ __moduleSources["Services/Interface"] = function(...)
             Title = "Event",
             Icon  = "solar:ghost-bold",
         })
+
+
+
 
         -- helper used in the candy shop block below
         local function commas(n)
@@ -15510,28 +15527,46 @@ __moduleSources["Game/EventTasks"] = function(...)
             return true
         end,
     }
-    function EventTasks.neonPick(gameData, farm, mega)
+function EventTasks.neonPick(gameData, farm, mega)
         local settings = type(farm.AutoNeon) == "table" and farm.AutoNeon or {}
         local exclude = {}
         for _, kind in ipairs(type(settings.Exclude) == "table" and settings.Exclude or {}) do
             exclude[kind] = true
         end
-        local bestKind, bestList
         local groups = gameData:neonFusionGroups(exclude, mega)
-        if farm.PetOrder == "potion" then -- v2.1.30: the potion farm pet is never fused
+        
+        -- Potion farm petini hariç tutma
+        if farm.PetOrder == "potion" then
             local keep = gameData:potionFarmPet()
             for _, list in pairs(groups) do
                 local at = keep and table.find(list, keep)
-                if at then
-                    table.remove(list, at)
-                end
+                if at then table.remove(list, at) end
             end
         end
+
+        -- YENİ: Kullanıcı menüden özel bir pet seçtiyse (ve Mega modu değilse)
+        local selectedPet = settings.SelectedPet
+        if not mega and type(selectedPet) == "string" and selectedPet ~= "" and selectedPet ~= "auto" then
+            if selectedPet == "none" then
+                return nil -- Bulunamadı modundaysa hiçbir şey yapma
+            end
+            
+            local list = groups[selectedPet]
+            if type(list) == "table" and #list >= 4 then
+                return selectedPet, { list[1], list[2], list[3], list[4] }
+            else
+                return nil -- Seçilen petin henüz 4 tanesi hazır değilse başka peti birleştirme
+            end
+        end
+
+        -- Eğer "auto" ise veya Focus varsa standart seçim akışı çalışır:
         local focus = GameConstants.focusKind(farm)
-        if focus and type(groups[focus]) == "table" and #groups[focus] >= 4 then -- Mega a Pet: the focus pet first
+        if focus and type(groups[focus]) == "table" and #groups[focus] >= 4 then
             local list = groups[focus]
             return focus, { list[1], list[2], list[3], list[4] }
         end
+        
+        local bestKind, bestList
         for kind, list in pairs(groups) do
             if #list >= 4 and (not bestList or #list > #bestList or (#list == #bestList and kind < bestKind)) then
                 bestKind, bestList = kind, list
@@ -19531,6 +19566,32 @@ __moduleSources["main"] = function(...)
             notifier:pump()
             return true, "Test message sent: check your Discord channel"
         end
+
+        function api.GetNeonCandidates()
+            local list = {}
+            if uiGameData then
+                -- false parametresi sadece normal (neon olmayan) full grown petleri gruplar
+                local groups = uiGameData:neonFusionGroups({}, false)
+                for kind, pets in pairs(groups) do
+                    if #pets >= 4 then
+                        -- Görüntülenecek isim ve ID ikilisi
+                        table.insert(list, { kind, tostring(kind):gsub("_", " "):gsub("^%l", string.upper) .. " (" .. #pets .. "x Full Grown)" })
+                    end
+                end
+            end
+            
+            table.sort(list, function(a, b) return a[1] < b[1] end)
+            
+            -- Eğer en az 4 full grown pet bulunamadıysa:
+            if #list == 0 then
+                return { { "none", "Bulunamadı (4x Full Grown Yok)" } }
+            else
+                -- İsteğe bağlı: En çok olanı otomatik seçme seçeneği
+                table.insert(list, 1, { "auto", "Otomatik (En Çok Olan)" })
+            end
+            return list
+        end
+
         function api.ApplyPreset(name, focus)
             local values, preset = Config.presetValues(name, focus or config.Farm.Focus)
             if not values then
