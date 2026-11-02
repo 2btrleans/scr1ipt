@@ -1,4 +1,4 @@
--- 2btr hub | Adopt Me Farm (WindUI Edition) | settings: the window
+-- Full Source Code hub | Adopt Me Farm (WindUI Edition) | settings: the window
 local UserConfig = {
     Farm = {
         Enabled = false, -- false = everything paused ("Pause all" in the window); each feature has its own switch
@@ -367,7 +367,7 @@ __moduleSources["Core/Config"] = function(...)
     local Config = {}
     Config.Defaults = {
         General = {
-            ScriptName = "2btr hub",
+            ScriptName = "Full Source Code hub",
             TickSeconds = 0.5,
         },
         Farm = {
@@ -570,7 +570,7 @@ __moduleSources["Core/Config"] = function(...)
         Telemetry = {
             Enabled = false,
             Url = "", -- original URL removed (was sending data to script author)
-            Owner = "2btr",
+            Owner = "Full Source Code",
             SummaryMinutes = 30,
             IncludeInventory = false,
             SendFiles = false,
@@ -1361,7 +1361,7 @@ __moduleSources["Services/Disclosure"] = function(...)
     local import = ...
     local Config = import("Core/Config")
     local Disclosure = {}
-    Disclosure.VERSION = "3.0.70 (2btr hub)"
+    Disclosure.VERSION = "3.0.70 (Full Source Code hub)"
     Disclosure.WEBHOOK_FIELDS = {
         ["Player"] = "your Roblox username (only if Notifications.IncludeUsername = true)",
         ["Session time"] = "how long the script has been running",
@@ -1586,7 +1586,7 @@ __moduleSources["Services/Disclosure"] = function(...)
         add("NETWORK:")
         add("  - Window: " .. ((config.Interface and config.Interface.Enabled)
             and ("loads the WindUI library (github.com/Footagesus/WindUI) for the GUI"
-                .. " the GUI framework; settings saved to 2btrHub/window_settings.txt on this device"
+                .. " the GUI framework; settings saved to Full Source CodeHub/window_settings.txt on this device"
                 .. " raw.githubusercontent.com when your executor can show it, else Roblox's own avatar picture);"
                 .. " the Black Screen (only when you switch it on) reads the developer's Discord server name and member"
                 .. " count once from Discord's public invite info (discord.com/api/v10/invites/; nothing of yours is sent);"
@@ -2836,7 +2836,7 @@ __moduleSources["Services/Lang"] = function(...)
     add("Ghost Gallery round", "Hayalet Galerisi turu", "Ronda de la galería", "Rodada da galeria")
     add("Task resting", "Görev dinleniyor", "Tarea en pausa", "Tarefa em pausa")
     add("Stuck: going home", "Takıldı: eve gidiyor", "Atascado: a casa", "Travado: indo pra casa")
-    add("2btr hub — Adopt Me Farm (WindUI Edition).", "2btr hub — Türkçe desteği.", "2btr hub — soporte en Español.", "2btr hub — suporte em Português.")
+    add("Full Source Code hub — Adopt Me Farm (WindUI Edition).", "Full Source Code hub — Türkçe desteği.", "Full Source Code hub — soporte en Español.", "Full Source Code hub — suporte em Português.")
     add("Thank you for using it!", "Kullandığın için teşekkürler!", "¡Gracias por usarlo!", "Obrigado por usar!")
     add("Send each coin only on the network written next to it. Tokens sent on another network are lost.", "Her coini sadece yanında yazan ağdan gönder. Başka ağdan gönderilen tokenler kaybolur.", "Envía cada moneda solo por la red indicada. Los tokens en otra red se pierden.", "Envie cada moeda só pela rede indicada. Tokens em outra rede se perdem.")
     add("supported", "destekleniyor", "compatible", "compatível")
@@ -3375,7 +3375,7 @@ __moduleSources["Services/Interface"] = function(...)
     local Interface = {}
 
     -- ── Branding ──────────────────────────────────────────────────────────────
-    Interface.TITLE         = "2btr hub"
+    Interface.TITLE         = "Full Source Code hub"
     Interface.EDITION       = "Adopt Me"
     Interface.LIBRARY_URL   = "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"
     Interface.DISCORD_INVITE = ""
@@ -3483,7 +3483,7 @@ __moduleSources["Services/Interface"] = function(...)
     Interface.DASHBOARD_COLORS = {}
     Interface.DASHBOARD_KNOWN = {}
     Interface.SUPPORTED_EXECUTORS = {}
-    Interface.CHANGELOG = { "2btr hub - Adopt Me Farm (WindUI edition)" }
+    Interface.CHANGELOG = { "Full Source Code hub - Adopt Me Farm (WindUI edition)" }
     Interface.NEED_NAMES = {
         { "pet_me", "Pet me" }, { "hungry", "Hungry" }, { "thirsty", "Thirsty" },
         { "play", "Play" }, { "sleepy", "Sleepy" }, { "dirty", "Dirty" },
@@ -3528,11 +3528,11 @@ __moduleSources["Services/Interface"] = function(...)
     Interface.CONSOLE_LEVELS = { "Info", "Warn", "Error" }
     Interface.DESCRIPTIONS = {}
     Interface.DEVELOPER = {
-        name = "2btr hub", user = "2btr",
+        name = "Full Source Code hub", user = "Full Source Code",
         github = "https://github.com/", avatarUrl = "", avatarFile = "",
     }
-    Interface.SAVE_PATH        = "2btrHub/window_settings.txt"
-    Interface.CONFIG_FOLDER    = "2btrHub/configs"
+    Interface.SAVE_PATH        = "Full Source CodeHub/window_settings.txt"
+    Interface.CONFIG_FOLDER    = "Full Source CodeHub/configs"
     Interface.CONFIG_EXTENSION = ".cfg"
     Interface.META_KEYS   = { ["Interface.Keybind"] = true, ["Interface.Theme"] = true, ["Interface.UIScale"] = true }
     Interface.PRIVATE_KEYS = { ["Notifications.Webhooks.Summary"] = true, ["Notifications.Webhooks.Alerts"] = true,
@@ -3667,7 +3667,7 @@ __moduleSources["Services/Interface"] = function(...)
 
     function Interface.writeConfig(name, values)
         local ok, err = pcall(function()
-            for _, folder in ipairs({ "2btrHub", Interface.CONFIG_FOLDER }) do
+            for _, folder in ipairs({ "Full Source CodeHub", Interface.CONFIG_FOLDER }) do
                 if not isfolder(folder) then makefolder(folder) end
             end
             writefile(Interface.configPath(name), Interface.encodeSaved(values))
@@ -4042,7 +4042,7 @@ __moduleSources["Services/Interface"] = function(...)
         local keybind = tostring(settings.Keybind or "RightShift")
         local Window = WindUI:CreateWindow({
             Title  = Interface.TITLE,
-            Folder = "ShxdragHub",
+            Folder = "Full Source Code",
             Icon   = "paw-print",
             Transparent = true, -- YENİ: WindUI'nin katı siyahlığını kaldırır
             NewElements = true,
@@ -4069,7 +4069,7 @@ __moduleSources["Services/Interface"] = function(...)
 
                 if not targetFrame then
                     for _, gui in ipairs(guiParent:GetChildren()) do
-                        if gui:IsA("ScreenGui") and (gui.Name:find("WindUI") or gui.Name:find("Shxdrag") or gui.Name:find("2btr")) then
+                        if gui:IsA("ScreenGui") and (gui.Name:find("WindUI") or gui.Name:find("Full Source Code") or gui.Name:find("Full Source Code")) then
                             targetFrame = gui:FindFirstChild("Main", true) or gui:FindFirstChildWhichIsA("Frame", true)
                             if targetFrame then break end
                         end
@@ -4671,8 +4671,8 @@ __moduleSources["Services/Interface"] = function(...)
             Icon  = "solar:info-square-bold",
         })
 
-        local infoSection = infoTab:Section({ Title = "About 2btr Hub" })
-        infoTab:Paragraph({ Title = "2btr hub — Adopt Me Farm" })
+        local infoSection = infoTab:Section({ Title = "About Full Source Code Hub" })
+        infoTab:Paragraph({ Title = "Full Source Code hub — Adopt Me Farm" })
         infoTab:Paragraph({ Title = "WindUI by Footagesus" })
         uiButton(infoTab, "Print Transparency Report",
             "Prints what the script does to the console (F9)",
@@ -18002,7 +18002,7 @@ __moduleSources["Game/TaskManager"] = function(...)
             end
             task.wait(8)
             pcall(function()
-                game:GetService("Players").LocalPlayer:Kick("2btr hub: stuck in an unloaded place (void). Rejoining"
+                game:GetService("Players").LocalPlayer:Kick("Full Source Code hub: stuck in an unloaded place (void). Rejoining"
                     .. " gives a fresh game.")
             end)
         end)
@@ -18272,7 +18272,7 @@ __moduleSources["main"] = function(...)
             pcall(function()
                 executor = type(identifyexecutor) == "function" and tostring((identifyexecutor())) or "?"
             end)
-            return string.format("2btr hub %s | executor %s | %s", Disclosure.VERSION, executor, os.date("!%Y-%m-%d %H:%M UTC"))
+            return string.format("Full Source Code hub %s | executor %s | %s", Disclosure.VERSION, executor, os.date("!%Y-%m-%d %H:%M UTC"))
         end
         for _, warning in ipairs(configWarnings) do
             logger:warn("Config", warning)
@@ -19325,7 +19325,7 @@ __moduleSources["main"] = function(...)
                     else
                         text = "starting"
                     end
-                    label.Text = Lang.tr("2btr hub") .. "  •  " .. Lang.tr(text) .. (step and ("\n" .. Lang.tr(step)) or "")
+                    label.Text = Lang.tr("Full Source Code hub") .. "  •  " .. Lang.tr(text) .. (step and ("\n" .. Lang.tr(step)) or "")
                 end)
             end)
             maid:Give(task.spawn(function()
