@@ -4049,6 +4049,58 @@ __moduleSources["Services/Interface"] = function(...)
             OpenButton = { Enabled = true, OnlyMobile = false },
         })
 
+        -- ── UI Arka Plan Resmi (rbxassetid://140222022471910) ───────────────────
+        task.spawn(function()
+            task.wait(0.2)
+            pcall(function()
+                local guiParent = (type(gethui) == "function" and gethui()) or game:GetService("CoreGui")
+                local targetFrame = nil
+
+                -- WindUI penceresinin ana gövdesini bul
+                if Window.UIElements and (Window.UIElements.Main or Window.UIElements.MainFrame) then
+                    targetFrame = Window.UIElements.Main or Window.UIElements.MainFrame
+                elseif Window.Instance then
+                    targetFrame = Window.Instance:FindFirstChild("Main", true) or Window.Instance
+                end
+
+                -- Eğer bulunamadıysa CoreGui / gethui altından tara
+                if not targetFrame then
+                    for _, gui in ipairs(guiParent:GetChildren()) do
+                        if gui:IsA("ScreenGui") and (gui.Name:find("WindUI") or gui.Name:find("Shxdrag") or gui.Name:find("2btr")) then
+                            targetFrame = gui:FindFirstChild("Main", true) or gui:FindFirstChildWhichIsA("Frame", true)
+                            if targetFrame then break end
+                        end
+                    end
+                end
+
+                if targetFrame then
+                    targetFrame.ClipsDescendants = true
+
+                    -- Varsa eskisini güncelle, yoksa yeni ImageLabel oluştur
+                    local bg = targetFrame:FindFirstChild("CustomBackground") or Instance.new("ImageLabel")
+                    bg.Name = "CustomBackground"
+                    bg.BackgroundTransparency = 1
+                    bg.Size = UDim2.new(1, 0, 1, 0)
+                    bg.Position = UDim2.new(0, 0, 0, 0)
+                    bg.Image = "rbxassetid://140222022471910"
+                    bg.ImageTransparency = 0.4 -- 0 = Tam net, 0.5 = Yarı şeffaf (yazıların okunması için 0.4 idealdir)
+                    bg.ScaleType = Enum.ScaleType.Crop
+                    bg.ZIndex = 0 -- Yazıların ve butonların arkasında kalması için
+
+                    -- Pencerenin yuvarlak köşelerini resme de uygula
+                    local corner = targetFrame:FindFirstChildOfClass("UICorner")
+                    if corner then
+                        local bgCorner = bg:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+                        bgCorner.CornerRadius = corner.CornerRadius
+                        bgCorner.Parent = bg
+                    end
+
+                    bg.Parent = targetFrame
+                end
+            end)
+        end)
+        -- ────────────────────────────────────────────────────────────────────────
+
         pcall(function()
             Window:SetToggleKey(Enum.KeyCode[keybind])
         end)
