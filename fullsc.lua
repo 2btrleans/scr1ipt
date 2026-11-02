@@ -4038,32 +4038,35 @@ __moduleSources["Services/Interface"] = function(...)
             end
         end
 
-        -- ── Build Window ───────────────────────────────────────────────────────
+-- ── Build Window (Transparent Aktif) ───────────────────────────────────
         local keybind = tostring(settings.Keybind or "RightShift")
         local Window = WindUI:CreateWindow({
             Title  = Interface.TITLE,
-            Folder = "2btrHub",
+            Folder = "ShxdragHub",
             Icon   = "paw-print",
+            Transparent = true, -- YENİ: WindUI'nin katı siyahlığını kaldırır
             NewElements = true,
             HideSearchBar = false,
             OpenButton = { Enabled = true, OnlyMobile = false },
         })
 
-        -- ── UI Arka Plan Resmi (rbxassetid://140222022471910) ───────────────────
+        pcall(function()
+            Window:SetToggleKey(Enum.KeyCode[keybind])
+        end)
+
+        -- ── UI Arka Plan Resmi (Sabit Dururken Net Görünmesi İçin) ─────────────
         task.spawn(function()
-            task.wait(0.2)
+            task.wait(0.3)
             pcall(function()
                 local guiParent = (type(gethui) == "function" and gethui()) or game:GetService("CoreGui")
                 local targetFrame = nil
 
-                -- WindUI penceresinin ana gövdesini bul
                 if Window.UIElements and (Window.UIElements.Main or Window.UIElements.MainFrame) then
                     targetFrame = Window.UIElements.Main or Window.UIElements.MainFrame
                 elseif Window.Instance then
                     targetFrame = Window.Instance:FindFirstChild("Main", true) or Window.Instance
                 end
 
-                -- Eğer bulunamadıysa CoreGui / gethui altından tara
                 if not targetFrame then
                     for _, gui in ipairs(guiParent:GetChildren()) do
                         if gui:IsA("ScreenGui") and (gui.Name:find("WindUI") or gui.Name:find("Shxdrag") or gui.Name:find("2btr")) then
@@ -4075,30 +4078,47 @@ __moduleSources["Services/Interface"] = function(...)
 
                 if targetFrame then
                     targetFrame.ClipsDescendants = true
+                    targetFrame.BackgroundTransparency = 0.2 -- Ana çerçevenin siyahlığını kır
 
-                    -- Varsa eskisini güncelle, yoksa yeni ImageLabel oluştur
+                    -- Arka Plan Resmi
                     local bg = targetFrame:FindFirstChild("CustomBackground") or Instance.new("ImageLabel")
                     bg.Name = "CustomBackground"
                     bg.BackgroundTransparency = 1
                     bg.Size = UDim2.new(1, 0, 1, 0)
                     bg.Position = UDim2.new(0, 0, 0, 0)
                     bg.Image = "rbxassetid://140222022471910"
-                    bg.ImageTransparency = 0.4 -- 0 = Tam net, 0.5 = Yarı şeffaf (yazıların okunması için 0.4 idealdir)
+                    bg.ImageTransparency = 0.15 -- Normal duruşta net görünmesi için parlaklık artırıldı
                     bg.ScaleType = Enum.ScaleType.Crop
-                    bg.ZIndex = 0 -- Yazıların ve butonların arkasında kalması için
+                    bg.ZIndex = 0
 
-                    -- Pencerenin yuvarlak köşelerini resme de uygula
                     local corner = targetFrame:FindFirstChildOfClass("UICorner")
                     if corner then
                         local bgCorner = bg:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
                         bgCorner.CornerRadius = corner.CornerRadius
                         bgCorner.Parent = bg
                     end
-
                     bg.Parent = targetFrame
+
+                    -- Resmi kapatan içteki siyah panelleri yarı saydam yap:
+                    local function makeTranslucent()
+                        for _, obj in ipairs(targetFrame:GetDescendants()) do
+                            if (obj:IsA("Frame") or obj:IsA("CanvasGroup") or obj:IsA("ScrollingFrame")) and obj ~= bg then
+                                -- Büyük kapalı panelleri hafif saydamlaştır ki resim arkalarından parlasın
+                                if obj.BackgroundTransparency < 0.25 and (obj.Size.X.Offset > 80 or obj.Size.X.Scale > 0.2) then
+                                    obj.BackgroundTransparency = 0.3
+                                end
+                            end
+                        end
+                    end
+
+                    makeTranslucent()
+                    -- UI animasyonu bittiğinde tekrar kapalı siyaha dönmesini önlemek için:
+                    task.delay(1, makeTranslucent)
+                    task.delay(2, makeTranslucent)
                 end
             end)
         end)
+        -- ────────────────────────────────────────────────────────────────────────
         -- ────────────────────────────────────────────────────────────────────────
 
         pcall(function()
