@@ -4149,38 +4149,33 @@ __moduleSources["Services/Interface"] = function(...)
         farmTab:Space()
 
 
-        -- Potions & Neon
         local growthSection = farmTab:Section({ Title = "Potions & Neon" })
-        bindToggle(farmTab, "Use Potions",
-            "Uses every farming potion on the growing pet",
-            { "Farm", "AutoPotions", "Enabled" })
-        bindToggle(farmTab, "Auto Neon Pets",
-            "4 full grown of same kind -> 1 neon",
-            { "Farm", "AutoNeon", "Enabled" })
+        bindToggle(farmTab, "Use Potions", "", { "Farm", "AutoPotions", "Enabled" })
+        bindToggle(farmTab, "Auto Neon Pets", "Otomatik neon yap", { "Farm", "AutoNeon", "Enabled" })
 
-        -- === SEÇME YERİ (DROPDOWN) ===
-        -- Eğer config'de boşsa hata vermemesi için varsayılan ata
-        if read({ "Farm", "AutoNeon", "SelectedPet" }) == nil then
-            write({ "Farm", "AutoNeon", "SelectedPet" }, "none")
-        end
+        -- Seçim kutusu
+        local neonChoices = type(api.GetNeonCandidates) == "function" and api.GetNeonCandidates() or { { "none", "Bulunamadı" } }
+        bindPickSimple(farmTab, "Neon Yapılacak Pet", "4x Full Grown pet seçin", { "Farm", "AutoNeon", "SelectedPet" }, neonChoices, false)
 
-        local neonChoices = {}
-        if type(api.GetNeonCandidates) == "function" then
-            neonChoices = api.GetNeonCandidates()
-        end
-        if #neonChoices == 0 then
-            neonChoices = { { "none", "Bulunamadı (4x Full Grown Yok)" } }
-        end
+        -- YENİ: Anında Tetikleme Butonu
+        uiButton(farmTab, "Seçili Peti Şimdi Neon Yap", "Beklemeden hemen 4 peti birleştirir", function()
+            local kind, uniques = EventTasks.neonPick(api.State._gameData or api.GameData, api.Config.Farm, false)
+            if not kind or not uniques or #uniques < 4 then
+                return false, "Seçilen petten 4 adet Full Grown bulunamadı!"
+            end
+            
+            local ok, err = pcall(function()
+                game:GetService("ReplicatedStorage").API["PetAPI/DoNeonFusion"]:InvokeServer({ uniques[1], uniques[2], uniques[3], uniques[4] })
+            end)
+            
+            if ok then
+                return true, "Neon yapıldı: " .. tostring(kind)
+            else
+                return false, "Hata: " .. tostring(err)
+            end
+        end)
 
-        bindPickSimple(farmTab, "Neon Yapılacak Pet",
-            "4x Full Grown olan petler listelenir",
-            { "Farm", "AutoNeon", "SelectedPet" },
-            neonChoices, false)
-        -- =============================
-
-        bindToggle(farmTab, "Auto Mega Neon Pets",
-            "4 neons of same kind -> 1 mega neon",
-            { "Farm", "AutoNeon", "Mega" })
+        bindToggle(farmTab, "Auto Mega Neon Pets", "", { "Farm", "AutoNeon", "Mega" })
 
         -- ── EVENT tab ──────────────────────────────────────────────────────────
         local eventTab = Window:Tab({
@@ -15590,58 +15585,32 @@ function EventTasks.neonPick(gameData, farm, mega)
     end
     local NEON_PLACE_WAIT, NEON_BETWEEN_PET, NEON_AFTER_PLACE = 0.12, 0.08, 0.15
     local function fusionTask(mega)
-        return {
-        id = mega and "mega_fusion" or "neon_fusion",
-        timeoutSeconds = 40,
-        run = function(ctx)
-            local kind, uniques = EventTasks.neonPick(ctx.gameData, ctx.farmConfig, mega)
-            if not kind then
-                return true
-            end
-            local function countNow()
-                return mega and ctx.gameData:megaCountOfKind(kind) or ctx.gameData:neonCountOfKind(kind)
-            end
-            local neonsBefore = countNow()
-            for _, unique in ipairs(uniques) do
-                ctx.interaction:send("EquipItem", unique, { equip_as_last = false, use_sound_delay = false })
-                task.wait(NEON_PLACE_WAIT)
-                ctx.interaction:send("UnequipItem", unique, nil)
-                task.wait(NEON_BETWEEN_PET)
-            end
-            task.wait(NEON_AFTER_PLACE)
-            local ok, answer = ctx.interaction:send("NeonFusion", { uniques[1], uniques[2], uniques[3], uniques[4] })
-            local answered = type(answer) == "string" and answer or nil
-            local function fused()
-                if answered and (mega and ctx.gameData:isPetMega(answered) or not mega and ctx.gameData:isPetNeon(answered)) then
-                    return true
-                end
-                local gone = 0
-                for _, unique in ipairs(uniques) do
-                    if ctx.gameData:petAge(unique) == nil then
-                        gone += 1
+            return {
+                id = mega and "mega_fusion" or "neon_fusion",
+                timeoutSeconds = 20,
+                run = function(ctx)
+                    local kind, uniques = EventTasks.neonPick(ctx.gameData, ctx.farmConfig, mega)
+                    if not kind or not uniques or #uniques < 4 then
+                        return false, "Birleştirmek için 4 adet hazır Full Grown pet bulunamadı!"
                     end
-                end
-                return gone >= 3 and countNow() > neonsBefore
-            end
-            if ctx.waitUntil(fused, 6) then
-                if mega then
-                    ctx.logger:success("Event", string.format("Mega neon fusion: 4 neon %s -> 1 mega neon %s (mega %s now: %d)",
-                        kind, kind, kind, countNow()))
-                else
-                    ctx.logger:success("Event", string.format("Neon fusion: 4 %s -> 1 neon %s (neon %s now: %d)", kind, kind, kind,
-                        countNow()))
-                end
-                return true
-            end
-            return false, string.format("%s fusion of 4 %s not seen in my data (server answer: %s %s)", mega and "mega neon"
-                or "neon", kind, tostring(ok), Util.truncate(tostring(answer), 60))
-        end,
-        }
-    end
+
+                    ctx.logger:info("Neon", string.format("Neon yapılıyor: %s (4 adet ID gönderiliyor)", tostring(kind)))
+
+                    -- Sizin attığınız PetAPI/DoNeonFusion remote'unu 4 Unique ID ile doğrudan çağırıyoruz:
+                    local ok, answer = ctx.interaction:send("NeonFusion", { uniques[1], uniques[2], uniques[3], uniques[4] })
+
+                    if ok then
+                        ctx.logger:success("Neon", "Tebrikler! Neon başarıyla yapıldı: " .. tostring(kind))
+                        task.wait(1)
+                        return true
+                    else
+                        return false, "Neon birleştirme sunucu tarafından reddedildi: " .. tostring(answer)
+                    end
+                end,
+            }
+        end
     EventTasks.neonFusion = fusionTask(false)
     EventTasks.megaFusion = fusionTask(true)
-    -- v3.0.21: a pet's candy price from the game's own item list (InventoryDB pets[id]), only when that entry says
-    -- its currency is the event candy; nil = not known (never bought then)
     EventTasks._gamePrice = {}
     function EventTasks.gameCandyPrice(id)
         if EventTasks._gamePrice[id] ~= nil then
@@ -17322,6 +17291,15 @@ __moduleSources["Game/TaskManager"] = function(...)
             self:_start(eventKey, eventLabel, eventTask, eventGroup, true)
             return
         end
+
+        if self._farmConfig.AutoNeon and self._farmConfig.AutoNeon.Enabled and not self:_isBlocked("neon_fusion") then
+            local kind, uniques = EventTasks.neonPick(self._gameData, self._farmConfig, false)
+            if kind and uniques and #uniques >= 4 then
+                self:_start("neon_fusion", "Neon Birleştirme (" .. tostring(kind) .. ")", EventTasks.neonFusion, nil, true)
+                return
+            end
+        end
+
         local group, taskDefinition = self:_selectGroup()
         if group then
             local owners = {}
