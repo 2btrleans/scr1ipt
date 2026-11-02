@@ -400,7 +400,7 @@ __moduleSources["Core/Config"] = function(...)
             AutoNeeds = {
                 Enabled = false,
                 Skip = {},
-                SelectedPet = "auto", -- YENİ
+                SelectedPet = "none", -- YENİ
                 Exclude = {},
             },
             MultiNeed = {
@@ -4149,26 +4149,37 @@ __moduleSources["Services/Interface"] = function(...)
         farmTab:Space()
 
 
-        local neonChoices = type(api.GetNeonCandidates) == "function" and api.GetNeonCandidates() or { { "none", "Bulunamadı (4x Full Grown Yok)" } }
-        bindPickSimple(farmTab, "Neon Yapılacak Pet",
-            "Sadece 4x Full Grown olan petler listelenir",
-            { "Farm", "AutoNeon", "SelectedPet" },
-            neonChoices, false)
-
-        bindToggle(farmTab, "Auto Mega Neon Pets",
-            "4 neons of same kind → 1 mega neon",
-            { "Farm", "AutoNeon", "Mega" })
-
         -- Potions & Neon
         local growthSection = farmTab:Section({ Title = "Potions & Neon" })
         bindToggle(farmTab, "Use Potions",
             "Uses every farming potion on the growing pet",
             { "Farm", "AutoPotions", "Enabled" })
         bindToggle(farmTab, "Auto Neon Pets",
-            "4 full grown of same kind → 1 neon",
+            "4 full grown of same kind -> 1 neon",
             { "Farm", "AutoNeon", "Enabled" })
+
+        -- === SEÇME YERİ (DROPDOWN) ===
+        -- Eğer config'de boşsa hata vermemesi için varsayılan ata
+        if read({ "Farm", "AutoNeon", "SelectedPet" }) == nil then
+            write({ "Farm", "AutoNeon", "SelectedPet" }, "none")
+        end
+
+        local neonChoices = {}
+        if type(api.GetNeonCandidates) == "function" then
+            neonChoices = api.GetNeonCandidates()
+        end
+        if #neonChoices == 0 then
+            neonChoices = { { "none", "Bulunamadı (4x Full Grown Yok)" } }
+        end
+
+        bindPickSimple(farmTab, "Neon Yapılacak Pet",
+            "4x Full Grown olan petler listelenir",
+            { "Farm", "AutoNeon", "SelectedPet" },
+            neonChoices, false)
+        -- =============================
+
         bindToggle(farmTab, "Auto Mega Neon Pets",
-            "4 neons of same kind → 1 mega neon",
+            "4 neons of same kind -> 1 mega neon",
             { "Farm", "AutoNeon", "Mega" })
 
         -- ── EVENT tab ──────────────────────────────────────────────────────────
