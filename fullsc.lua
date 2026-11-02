@@ -4150,7 +4150,6 @@ __moduleSources["Services/Interface"] = function(...)
 
 
         -- Potions & Neon
--- Potions & Neon
         local growthSection = farmTab:Section({ Title = "Potions & Neon" })
         bindToggle(farmTab, "Use Potions", "", { "Farm", "AutoPotions", "Enabled" })
         bindToggle(farmTab, "Auto Neon Pets", "Otomatik neon yap", { "Farm", "AutoNeon", "Enabled" })
@@ -17293,7 +17292,7 @@ __moduleSources["Game/TaskManager"] = function(...)
             self:_start(eventKey, eventLabel, eventTask, eventGroup, true)
             return
         end
-
+        
         if self._farmConfig.AutoNeon and self._farmConfig.AutoNeon.Enabled and not self:_isBlocked("neon_fusion") then
             local kind, uniques = EventTasks.neonPick(self._gameData, self._farmConfig, false)
             if kind and uniques and #uniques >= 4 then
