@@ -745,27 +745,27 @@ local function addESP(part)
 end
 
 -- ✅ GÜNCELLENMİŞ TARAMA MANTIĞI
+-- ✅ GÜNCELLENMİŞ TARAMA MANTIĞI (Doğrudan workspace çocuklarını tarar)
 function scanChestParts()
-    for _, obj in pairs(workspace:GetDescendants()) do
-        -- 1. ChestController'ı bul
-        if obj:IsA("LuaSourceContainer") and obj.Name == "ChestController" then
-            local parent = obj.Parent
-            -- 2. Aynı model içindeki Body'yi bul
-            local body = parent:FindFirstChild("Body")
+    for _, model in pairs(workspace:GetChildren()) do
+        -- 1. Model içindeki Body'yi bul (Modelin adı 403 vb. rastgele olabilir)
+        local body = model:FindFirstChild("Body")
+        
+        if body then
+            -- 2. Body içindeki PromptAttachment'ı bul
+            local promptAttachment = body:FindFirstChild("PromptAttachment")
             
-            if body then
-                -- 3. Body içindeki PromptAttachment'ı bul
-                local promptAttachment = body:FindFirstChild("PromptAttachment")
-                if promptAttachment then
-                    -- 4. PromptAttachment içindeki ProximityPrompt'u bul
-                    local prompt = promptAttachment:FindFirstChildWhichIsA("ProximityPrompt")
-                    if prompt then
-                        -- ✅ SÜREYİ 0 YAP
-                        prompt.HoldDuration = 0
-                    end
+            if promptAttachment then
+                -- 3. PromptAttachment içindeki ProximityPrompt'u bul
+                local prompt = promptAttachment:FindFirstChildWhichIsA("ProximityPrompt")
+                
+                if prompt then
+                    -- ✅ SÜREYİ 0 YAP
+                    prompt.HoldDuration = 0
+                    
+                    -- ESP'yi Body'ye ekle
+                    addESP(body)
                 end
-                -- ESP'yi Body'ye ekle
-                addESP(body)
             end
         end
     end
